@@ -126,6 +126,8 @@ class TextRecognitionFragment : Fragment() {
     private fun loadFromVisionText(texts: FirebaseVisionText) {
         val results: MutableList<String> = mutableListOf()
 
+        results.add("[recognized] ${texts.blocks.joinToString("\n") { it.text }}\n")
+
         texts.blocks.forEach { block ->
             val boundingBox = block.boundingBox
             val cornerPoints = block.cornerPoints
