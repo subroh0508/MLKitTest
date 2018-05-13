@@ -75,6 +75,7 @@ class TextRecognitionFragment : Fragment() {
             if (cameraDelegate.isPreviewed) {
                 picture = null
                 result?.text = "RESULT: NONE"
+                time?.text = "TIME: NONE"
                 onDevice?.isClickable = false
                 cameraDelegate.restartPreview()
                 return@setOnClickListener
@@ -100,14 +101,25 @@ class TextRecognitionFragment : Fragment() {
         val picture = this.picture ?: return
         val firebaseVisionImage = FirebaseVisionImage.fromBitmap(picture)
 
+        val startTime = System.currentTimeMillis()
+        progress?.visibility = View.VISIBLE
+        time?.visibility = View.GONE
+        result?.visibility = View.GONE
         firebaseVision.visionTextDetector
                 .detectInImage(firebaseVisionImage)
                 .addOnSuccessListener {
                     loadFromVisionText(it)
                 }
                 .addOnFailureListener { e ->
-                    result.text = e.message
+                    result?.text = e.message
                     e.printStackTrace()
+                }
+                .addOnCompleteListener {
+                    progress?.visibility = View.GONE
+                    time?.visibility = View.VISIBLE
+                    result?.visibility = View.VISIBLE
+
+                    time?.text = "TIME: ${(System.currentTimeMillis() - startTime) / 1000.0}sec"
                 }
     }
 
@@ -126,21 +138,32 @@ class TextRecognitionFragment : Fragment() {
             )
         }
 
-        result.text = results.joinToString("\n")
+        result?.text = results.joinToString("\n")
     }
 
     private fun startOnCloud() {
         val picture = this.picture ?: return
         val firebaseVisionImage = FirebaseVisionImage.fromBitmap(picture)
 
+        val startTime = System.currentTimeMillis()
+        progress?.visibility = View.VISIBLE
+        time?.visibility = View.GONE
+        result?.visibility = View.GONE
         firebaseVision.getVisionCloudTextDetector(cloudOptions)
                 .detectInImage(firebaseVisionImage)
                 .addOnSuccessListener {
                     loadFromVisionCloudText(it)
                 }
                 .addOnFailureListener { e ->
-                    result.text = e.message
+                    result?.text = e.message
                     e.printStackTrace()
+                }
+                .addOnCompleteListener {
+                    progress?.visibility = View.GONE
+                    time?.visibility = View.VISIBLE
+                    result?.visibility = View.VISIBLE
+
+                    time?.text = "TIME: ${(System.currentTimeMillis() - startTime) / 1000.0}sec"
                 }
     }
 
@@ -190,6 +213,6 @@ class TextRecognitionFragment : Fragment() {
 
         results.add("=============")
 
-        result.text = results.joinToString("\n")
+        result?.text = results.joinToString("\n")
     }
 }
