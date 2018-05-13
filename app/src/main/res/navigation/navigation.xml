@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="jp.subroh0508.mlkittest.ui.main.MainFragment"
+        android:label="main_fragment"
+        tools:layout="@layout/main_fragment" >
+        <action
+            android:id="@+id/toBarcodeScanningFragment"
+            app:destination="@id/barcodeScanningFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+        <action
+            android:id="@+id/toImageLabelingFragment"
+            app:destination="@id/imageLabelingFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+        <action
+            android:id="@+id/toTextRecognitionFragment"
+            app:destination="@id/textRecognitionFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+        <action
+            android:id="@+id/toFaceDetectionFragment"
+            app:destination="@id/faceDetectionFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/barcodeScanningFragment"
+        android:name="jp.subroh0508.mlkittest.ui.main.BarcodeScanningFragment"
+        android:label="barcode_scanning_fragment"
+        tools:layout="@layout/barcode_scanning_fragment" />
+    <fragment
+        android:id="@+id/faceDetectionFragment"
+        android:name="jp.subroh0508.mlkittest.ui.main.FaceDetectionFragment"
+        android:label="face_detection_fragment"
+        tools:layout="@layout/face_detection_fragment" />
+    <fragment
+        android:id="@+id/imageLabelingFragment"
+        android:name="jp.subroh0508.mlkittest.ui.main.ImageLabelingFragment"
+        android:label="image_labeling_fragment"
+        tools:layout="@layout/image_labeling_fragment" />
+    <fragment
+        android:id="@+id/textRecognitionFragment"
+        android:name="jp.subroh0508.mlkittest.ui.main.TextRecognitionFragment"
+        android:label="text_recognition_fragment"
+        tools:layout="@layout/text_recognition_fragment" />
+</navigation>
