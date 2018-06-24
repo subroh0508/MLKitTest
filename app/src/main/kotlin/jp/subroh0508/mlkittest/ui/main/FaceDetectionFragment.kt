@@ -2,6 +2,7 @@ package jp.subroh0508.mlkittest.ui.main
 
 import android.Manifest
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
@@ -19,15 +20,18 @@ import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark
 import com.tbruyelle.rxpermissions2.RxPermissions
 import jp.subroh0508.mlkittest.R
 import jp.subroh0508.mlkittest.ui.CameraDelegate
+import jp.subroh0508.mlkittest.ui.ImageLoadDelegate
 import kotlinx.android.synthetic.main.face_detection_fragment.*
 
 class FaceDetectionFragment : Fragment() {
-
     companion object {
         fun newInstance() = FaceDetectionFragment()
+
+        private val sampleImageNames: List<String> = listOf("face_detection1.jpg", "face_detection2.jpg", "face_detection3.jpg")
     }
 
     private val cameraDelegate: CameraDelegate by lazy { context?.let { CameraDelegate(it.systemService<CameraManager>()) } ?: throw IllegalStateException() }
+    private val imageLoadDelegate: ImageLoadDelegate by lazy(::ImageLoadDelegate)
 
     private val rxPermissions: RxPermissions by lazy { activity?.let(::RxPermissions) ?: throw IllegalStateException() }
 
@@ -37,7 +41,7 @@ class FaceDetectionFragment : Fragment() {
             .setModeType(FirebaseVisionFaceDetectorOptions.ACCURATE_MODE)
             .setLandmarkType(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
             .setClassificationType(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
-            .setMinFaceSize(0.15f)
+            .setMinFaceSize(0.01f)
             .setTrackingEnabled(true)
             .build()
 
@@ -48,6 +52,25 @@ class FaceDetectionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        isCamera.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                cameraTexture?.visibility = View.VISIBLE
+                capture?.visibility = View.VISIBLE
+            } else {
+                cameraTexture?.visibility = View.GONE
+                capture?.visibility = View.GONE
+            }
+        }
+        isAsset.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                sample?.visibility = View.VISIBLE
+                samples?.visibility = View.VISIBLE
+            } else {
+                sample?.visibility = View.GONE
+                samples?.visibility = View.GONE
+            }
+        }
 
         cameraTexture?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
@@ -89,6 +112,19 @@ class FaceDetectionFragment : Fragment() {
         onDevice?.setOnClickListener {
             startOnDevice()
         }
+
+        imageLoadDelegate.loadImagesFromAsset(samples, sampleImageNames) { filename ->
+            val bitmap = BitmapFactory.decodeStream(
+                    context?.assets?.open(filename),
+                    null,
+                    BitmapFactory.Options().also { it.inSampleSize = 4 }
+            )
+
+            sample?.setImageBitmap(bitmap)
+
+            val rawBitmap = BitmapFactory.decodeStream(context?.assets?.open(filename))
+            picture = rawBitmap
+        }
     }
 
     private fun startOnDevice() {
@@ -101,7 +137,10 @@ class FaceDetectionFragment : Fragment() {
         result?.visibility = View.GONE
         firebaseVision.getVisionFaceDetector(options)
                 .detectInImage(firebaseVisionImage)
-                .addOnSuccessListener { it.forEach { face -> loadFromVisionFace(face) } }
+                .addOnSuccessListener {
+                    val faceInfo = it.map(this::loadFromVisionFace).flatten()
+                    result.text = faceInfo.joinToString("\n")
+                }
                 .addOnFailureListener { e ->
                     result?.text = e.message
                     e.printStackTrace()
@@ -115,8 +154,10 @@ class FaceDetectionFragment : Fragment() {
                 }
     }
 
-    private fun loadFromVisionFace(face: FirebaseVisionFace) {
-        result.append("=== Face Summary ===\n")
+    private fun loadFromVisionFace(face: FirebaseVisionFace): List<String> {
+        val results: MutableList<String> = mutableListOf()
+
+        results.add("=== Face Summary ===\n")
 
         val boundingBox = face.boundingBox
         val rotY = face.headEulerAngleY
@@ -125,17 +166,19 @@ class FaceDetectionFragment : Fragment() {
         val facePosition = "[Face Position] left=${boundingBox.left} right=${boundingBox.right} top=${boundingBox.top} bottom=${boundingBox.bottom}"
         val headAngles = "[Face Angle] Y=$rotY Z=$rotZ"
 
-        result.append("$facePosition\n")
-        result.append("$headAngles\n")
+        results.add(facePosition)
+        results.add(headAngles)
 
-        showFaceLandmarks(face)
-        showFaceClassification(face)
-        showTrackingId(face)
+        results.addAll(getFaceLandmarks(face))
+        results.addAll(getFaceClassification(face))
+        results.add(getTrackingId(face))
 
-        result.append("=== End Face Summary ===\n")
+        results.add("=== End Face Summary ===")
+
+        return results
     }
 
-    private fun showFaceLandmarks(face: FirebaseVisionFace) {
+    private fun getFaceLandmarks(face: FirebaseVisionFace): List<String> {
         val landmarksPosition: MutableList<String> = mutableListOf()
 
         val leftEar = face.getLandmark(FirebaseVisionFaceLandmark.LEFT_EAR)
@@ -161,10 +204,10 @@ class FaceDetectionFragment : Fragment() {
             landmarksPosition.add("$label: $point")
         }
 
-        result.append(landmarksPosition.joinToString("\n"))
+        return landmarksPosition
     }
 
-    private fun showFaceClassification(face: FirebaseVisionFace) {
+    private fun getFaceClassification(face: FirebaseVisionFace): List<String> {
         val probabilities: MutableList<String> = mutableListOf()
 
         val smilingProbability = face.smilingProbability
@@ -187,17 +230,15 @@ class FaceDetectionFragment : Fragment() {
             )
         }
 
-        result.append(probabilities.joinToString("\n"))
+        return probabilities
     }
 
-    private fun showTrackingId(face: FirebaseVisionFace) {
-        val trackingId = "TRACKING_ID: " +
+    private fun getTrackingId(face: FirebaseVisionFace): String {
+        return "TRACKING_ID: " +
                 if (face.trackingId == FirebaseVisionFace.INVALID_ID)
                     "Invalid ID"
                 else
                     face.trackingId.toString()
-
-        result.append("$trackingId\n")
     }
 
     private enum class FaceLandmark {

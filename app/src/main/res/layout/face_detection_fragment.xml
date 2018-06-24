@@ -11,26 +11,88 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextureView
-            android:id="@+id/cameraTexture"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="h,1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_default="spread"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/capture"
-            android:layout_width="wrap_content"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/preview"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_photo_camera_white_24dp"
-            app:backgroundTint="@color/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="@+id/cameraTexture"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/radioGroup">
+
+            <TextureView
+                android:id="@+id/cameraTexture"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="h,1:1"
+                app:layout_constraintHeight_default="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/capture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/ic_photo_camera_white_24dp"
+                app:backgroundTint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@+id/cameraTexture"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <ImageView
+                android:id="@+id/sample"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                app:layout_constraintDimensionRatio="h,1:1"
+                app:layout_constraintHeight_default="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/samples"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/samples"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/sample"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="parent"/>
+        </android.support.constraint.ConstraintLayout>
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/preview"
+            app:layout_constraintBottom_toTopOf="@id/onDevice"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <RadioButton
+                android:id="@+id/isCamera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="16dp"
+                android:text="Camera"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/isAsset"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="16dp"
+                android:text="Assets"/>
+        </RadioGroup>
 
         <Button
             android:id="@+id/onDevice"
@@ -41,7 +103,7 @@
             android:text="@string/start_recognition_on_device"
             app:layout_constraintEnd_toStartOf="@id/onCloud"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cameraTexture" />
+            app:layout_constraintTop_toBottomOf="@id/radioGroup" />
 
         <Button
             android:id="@+id/onCloud"
@@ -51,10 +113,11 @@
             android:clickable="false"
             android:text="@string/start_recognition_on_cloud"
             android:enabled="false"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toEndOf="@id/onDevice"
-            app:layout_constraintTop_toBottomOf="@id/cameraTexture" />
+            app:layout_constraintTop_toTopOf="@id/onDevice"
+            app:layout_constraintBottom_toBottomOf="@id/onDevice"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <android.support.design.internal.BaselineLayout
             android:id="@+id/buttonBaseline"
