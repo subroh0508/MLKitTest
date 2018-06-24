@@ -72,6 +72,8 @@ class TextRecognitionFragment : Fragment() {
         }
 
         capture?.setOnClickListener {
+            val context = context ?: return@setOnClickListener
+
             if (cameraDelegate.isPreviewed) {
                 picture = null
                 result?.text = "RESULT: NONE"
@@ -81,7 +83,7 @@ class TextRecognitionFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            picture = cameraDelegate.takePicture(context!!.filesDir,  "${System.currentTimeMillis()}.jpg")
+            picture = cameraDelegate.takePicture(context.filesDir,  "${System.currentTimeMillis()}.jpg")
 
             if (picture != null) {
                 onDevice?.isClickable = true
