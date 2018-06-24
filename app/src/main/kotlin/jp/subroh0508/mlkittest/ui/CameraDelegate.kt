@@ -5,8 +5,6 @@ import android.hardware.camera2.*
 import android.os.Handler
 import android.view.Surface
 import android.view.TextureView
-import androidx.core.content.systemService
-import jp.subroh0508.mlkittest.R.id.cameraTexture
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -38,6 +36,8 @@ class CameraDelegate(private val manager: CameraManager) {
         try {
             manager.openCamera(_cameraId, stateCallback, handler)
         } catch (e: CameraAccessException) {
+
+        } catch (e: SecurityException) {
 
         }
     }
