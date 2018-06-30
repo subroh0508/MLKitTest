@@ -41,8 +41,8 @@ class FaceDetectionFragment : Fragment() {
             .setModeType(FirebaseVisionFaceDetectorOptions.ACCURATE_MODE)
             .setLandmarkType(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
             .setClassificationType(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
-            .setMinFaceSize(0.01f)
-            .setTrackingEnabled(true)
+            .setMinFaceSize(0.1f)
+            .setTrackingEnabled(false)
             .build()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
